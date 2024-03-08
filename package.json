@@ -20,6 +20,7 @@
     "dependencies": {
         "express": "^4.19.2",
         "ghost-cursor": "^1.2.0",
+        "node-downloader-helper": "^2.1.9",
         "puppeteer": "^22.6.4",
         "puppeteer-extra": "^3.3.6",
         "puppeteer-extra-plugin-stealth": "^2.11.2",
@@ -28,6 +29,7 @@
     "devDependencies": {
         "@sindresorhus/tsconfig": "^5.0.0",
         "@types/express": "^4.17.21",
+        "@types/user-agents": "^1.0.4",
         "nodemon": "^3.0.3",
         "ts-node": "^10.9.1",
         "typescript": "^5.2.2"
