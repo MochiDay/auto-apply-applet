@@ -26,4 +26,6 @@ export interface Candidate {
   current_company: string;
   auth_to_work_in_usa: boolean;
   type_of_sponsership: string | null;
+  github_url: string | null;
+  website_url: string | null;
 }
