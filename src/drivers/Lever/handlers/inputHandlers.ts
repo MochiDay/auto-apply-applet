@@ -1,5 +1,10 @@
-import { sleep } from "../../../utils/general.js";
+import { checkKeywordExist, sleep } from "../../../utils/general.js";
 import { Engine } from "../../../types/shared.js";
+import {
+  LeverCustomQuestionField,
+  LeverFillQuestionError,
+} from "../types/types.js";
+import { LeverConfig } from "../config/config.js";
 
 export const handleBasicInputWithOverwrite = async (
   engine: Engine,
@@ -25,4 +30,43 @@ export const handleBasicInputWithOverwrite = async (
     window.scrollBy(0, 50 + Math.random() * 100);
   });
   console.log(`✅ Filled basic question: ${selector}`);
+};
+
+const handleDropdown = async (
+  engine: Engine,
+  field: LeverCustomQuestionField,
+  targetAnswer: string | string[],
+  cardId: string,
+  fieldId: string
+) => {
+  const isArray = Array.isArray(targetAnswer);
+  const optionTextThatMatches = field.options?.find((option) =>
+    isArray
+      ? checkKeywordExist(option.text.toLowerCase(), targetAnswer)
+      : option.text.toLowerCase().includes(targetAnswer.toLowerCase())
+  );
+  const dropdownSelector = `select[name="cards[${cardId}][${fieldId}]"]`;
+  if (optionTextThatMatches) {
+    await engine.cursor.click(dropdownSelector, {
+      moveDelay: 200 + Math.random() * 100,
+    });
+    await engine.page.select(dropdownSelector, optionTextThatMatches.text);
+  } else {
+    throw new LeverFillQuestionError(
+      LeverConfig.leverFillQuestionErrors.optionNotFound(field.text)
+    );
+  }
+};
+
+export const leverInputHandlers = (
+  engine: Engine,
+  field: LeverCustomQuestionField,
+  cardId: string,
+  fieldId: string,
+  targetAnswer: string | string[]
+) => {
+  return {
+    handleDropdown: async () =>
+      await handleDropdown(engine, field, targetAnswer, cardId, fieldId),
+  };
 };
