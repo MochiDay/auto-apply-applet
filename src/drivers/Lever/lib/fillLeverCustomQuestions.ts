@@ -78,7 +78,8 @@ const answerQuestion = async (
   cardId: string,
   index: number,
   field: LeverCustomQuestionField,
-  targetAnswer: string | string[]
+  targetAnswer: string | string[],
+  multipleAnswers?: string[]
 ) => {
   const fieldId = `field${index}`;
   const handlers = leverInputHandlers(
@@ -86,7 +87,8 @@ const answerQuestion = async (
     field,
     cardId,
     fieldId,
-    targetAnswer
+    targetAnswer,
+    multipleAnswers
   );
   switch (field.type) {
     case "dropdown":
@@ -95,6 +97,10 @@ const answerQuestion = async (
       return await handlers.handleTextArea();
     case "text":
       return await handlers.handleText();
+    case "multiple-select":
+      return await handlers.handleMultipleSelect();
+    case "multiple-choice":
+      return await handlers.handleMultipleChoice();
     default:
       throw new LeverFillQuestionError(
         LeverConfig.leverFillQuestionErrors.unsupportedFieldType(field.type)

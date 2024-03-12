@@ -83,13 +83,82 @@ const handleText = async (
   });
   await engine.page.type(textSelector, targetAnswer);
 };
+const handleMultipleSelect = async (
+  engine: Engine,
+  cardId: string,
+  fieldId: string,
+  field: LeverCustomQuestionField,
+  multipleAnswers?: string[]
+) => {
+  if (multipleAnswers) {
+    const answeredIds: string[] = [];
+    for (const answer of multipleAnswers) {
+      const optionTextThatMatches = field.options?.find((option) => {
+        return (
+          option.text.toLowerCase().includes(answer.toLowerCase()) &&
+          !answeredIds.includes(option.optionId)
+        );
+      });
+      if (optionTextThatMatches) {
+        const checkBoxSelectorMultiple = `input[type="checkbox"][value="${optionTextThatMatches.text}"][name="cards[${cardId}][responses][${fieldId}]"]`;
+        const checkBoxSelectorSingle = `input[type="checkbox"][value="${optionTextThatMatches.text}"][name="cards[${cardId}][${fieldId}]"]`;
+
+        const checkBoxSelector = (await engine.page.$(checkBoxSelectorMultiple))
+          ? checkBoxSelectorMultiple
+          : checkBoxSelectorSingle;
+
+        await sleep(50 + Math.random() * 100);
+        await engine.cursor.click(checkBoxSelector, {
+          moveDelay: 200 + Math.random() * 100,
+        });
+        answeredIds.push(optionTextThatMatches.optionId);
+      }
+    }
+    if (answeredIds.length === 0) {
+      throw new LeverFillQuestionError(
+        LeverConfig.leverFillQuestionErrors.optionNotFound(field.text)
+      );
+    }
+  } else {
+    throw new LeverFillQuestionError(
+      LeverConfig.leverFillQuestionErrors.multipleAnswersRequired
+    );
+  }
+};
+
+const handleMultipleChoice = async (
+  engine: Engine,
+  cardId: string,
+  fieldId: string,
+  field: LeverCustomQuestionField,
+  targetAnswer: string | string[]
+) => {
+  const isArray = Array.isArray(targetAnswer);
+  const multipleChoiceTextThatMatches = field.options?.find((option) =>
+    isArray
+      ? checkKeywordExist(option.text.toLowerCase(), targetAnswer)
+      : option.text.toLowerCase().includes(targetAnswer.toLowerCase())
+  );
+  if (multipleChoiceTextThatMatches) {
+    const radioSelector = `input[type="radio"][value="${multipleChoiceTextThatMatches.text}"][name="cards[${cardId}][${fieldId}]"]`;
+    await engine.cursor.click(radioSelector, {
+      moveDelay: 200 + Math.random() * 100,
+    });
+    await engine.page.click(radioSelector);
+  } else {
+    throw new LeverFillQuestionError(
+      LeverConfig.leverFillQuestionErrors.optionNotFound(field.text)
+    );
+  }
+};
 
 export const leverInputHandlers = (
   engine: Engine,
   field: LeverCustomQuestionField,
   cardId: string,
   fieldId: string,
-  targetAnswer: string | string[]
+  targetAnswer: string | string[],
+  multipleAnswers?: string[]
 ) => {
   return {
     handleDropdown: async () =>
@@ -98,5 +167,15 @@ export const leverInputHandlers = (
       await handleTextArea(engine, cardId, fieldId, targetAnswer as string),
     handleText: async () =>
       await handleText(engine, cardId, fieldId, targetAnswer as string),
+    handleMultipleSelect: async () =>
+      await handleMultipleSelect(
+        engine,
+        cardId,
+        fieldId,
+        field,
+        multipleAnswers
+      ),
+    handleMultipleChoice: async () =>
+      await handleMultipleChoice(engine, cardId, fieldId, field, targetAnswer),
   };
 };
