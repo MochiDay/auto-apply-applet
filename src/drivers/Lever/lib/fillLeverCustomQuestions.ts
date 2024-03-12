@@ -91,6 +91,10 @@ const answerQuestion = async (
   switch (field.type) {
     case "dropdown":
       return await handlers.handleDropdown();
+    case "textarea":
+      return await handlers.handleTextArea();
+    case "text":
+      return await handlers.handleText();
     default:
       throw new LeverFillQuestionError(
         LeverConfig.leverFillQuestionErrors.unsupportedFieldType(field.type)

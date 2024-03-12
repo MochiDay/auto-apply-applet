@@ -58,6 +58,32 @@ const handleDropdown = async (
   }
 };
 
+const handleTextArea = async (
+  engine: Engine,
+  cardId: string,
+  fieldId: string,
+  targetAnswer: string
+) => {
+  const textareaSelector = `textarea[name="cards[${cardId}][${fieldId}]"]`;
+  await engine.cursor.click(textareaSelector, {
+    moveDelay: 200 + Math.random() * 100,
+  });
+  await engine.page.type(textareaSelector, targetAnswer);
+};
+
+const handleText = async (
+  engine: Engine,
+  cardId: string,
+  fieldId: string,
+  targetAnswer: string
+) => {
+  const textSelector = `input[name="cards[${cardId}][${fieldId}]"]`;
+  await engine.cursor.click(textSelector, {
+    moveDelay: 200 + Math.random() * 100,
+  });
+  await engine.page.type(textSelector, targetAnswer);
+};
+
 export const leverInputHandlers = (
   engine: Engine,
   field: LeverCustomQuestionField,
@@ -68,5 +94,9 @@ export const leverInputHandlers = (
   return {
     handleDropdown: async () =>
       await handleDropdown(engine, field, targetAnswer, cardId, fieldId),
+    handleTextArea: async () =>
+      await handleTextArea(engine, cardId, fieldId, targetAnswer as string),
+    handleText: async () =>
+      await handleText(engine, cardId, fieldId, targetAnswer as string),
   };
 };
