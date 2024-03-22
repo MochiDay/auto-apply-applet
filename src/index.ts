@@ -1,6 +1,7 @@
 import express, { Request, Response, Application } from "express";
 import { init } from "./drivers/init.js";
 import { JobBoardDriver } from "./types/shared.js";
+import { apply } from "./drivers/apply.js";
 
 const app: Application = express();
 app.use(express.json());
@@ -25,6 +26,7 @@ app.post("/api/apply/lever", async (req: Request, res: Response) => {
     const { job_urls, candidate } = body;
     for (const job_url of job_urls) {
       const engine = await init(JobBoardDriver.LEVER, candidate, job_url);
+      await apply(engine);
     }
     res.send(job_urls);
   } catch (error) {
