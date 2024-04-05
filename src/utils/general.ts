@@ -1,6 +1,8 @@
 import type { Page } from "puppeteer";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
 
-// export const DirName = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+export const DirName = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

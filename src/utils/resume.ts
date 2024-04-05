@@ -1,9 +1,9 @@
 import { DownloaderHelper } from "node-downloader-helper";
 
 import * as fs from "fs";
-import os from "os";
 import { join } from "path";
 import { Candidate } from "../types/shared.js";
+import { DirName } from "./general.js";
 
 export async function downloadResume(candidate: Candidate) {
   console.log("Downloading resume...");
@@ -13,7 +13,7 @@ export async function downloadResume(candidate: Candidate) {
   const filename =
     url.split("/").pop() ||
     `${candidate.last_name}_${candidate.first_name}_resume.pdf`;
-  const userResumeDirectory = join(os.tmpdir(), candidate.first_name);
+  const userResumeDirectory = join(DirName, candidate.first_name);
   const filePath = join(userResumeDirectory, filename);
   console.log(filePath);
   if (!fs.existsSync(userResumeDirectory)) {
